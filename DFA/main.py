@@ -1,10 +1,11 @@
 from builder import DFABuilder, ParseError
 from runner import DFARunner
+from dfa import DEAD
 
 
 BANNER = """
 ╔══════════════════════════════════════╗
-║         DFA Simulator v1.0           ║
+║         DFA Simulator                ║
 ║  Deterministic Finite Automaton      ║
 ╚══════════════════════════════════════╝
 """
@@ -12,17 +13,17 @@ BANNER = """
 INPUT_GUIDE = """
 Enter your DFA definition below.
 Format:
-  States: (your states here with space)
-  Alphabet: (your alphabet here with space)
-  Start state: q0 (exp)
-  Final states: (your final state/s here (with space))
-  Number of transitions: 4      (this is how you should give your transtions based on the example)
+  States: q0 q1 q2
+  Alphabet: a b
+  Start state: q0
+  Final states: q2
+  Number of transitions: 4
   q0 a q1
   q1 b q2
   q2 a q2
   q2 b q2
 
- and when you are finished enter a blank line.\n\n
+When finished, press Enter on a blank line.
 """
 
 
@@ -40,15 +41,51 @@ def collect_dfa_input():
     return "\n".join(lines)
 
 
+def print_analysis(dfa):
+    separator = "─" * 50
+
+    print(separator)
+    print("  DFA Analysis")
+    print(separator)
+
+    unreachable = dfa.get_unreachable_states()
+    unreachable_display = unreachable - {DEAD}
+    if unreachable_display:
+        states_str = ", ".join(sorted(unreachable_display))
+        print(f"   ⚠ Unreachable states  : {{{states_str}}}")
+        print(     "     (These states can never be reached from the start state.)")
+    else:
+        print("     Unreachable states  : none")
+
+    dead_states = dfa.get_dead_states()
+    dead_display = dead_states - {DEAD} 
+    if dead_display:
+        states_str = ", ".join(sorted(dead_display))
+        print(f"  ⚠  Dead states         : {{{states_str}}}")
+        print(     "     (From these states no accepting state can be reached.)")
+    else:
+        print("     Dead states         : none")
+
+    if dfa.has_dead_state():
+        print(f"   DEAD state added    : undefined transitions were redirected to '{DEAD}'.")
+        print(f"     δ(DEAD, x) = DEAD  for all x ∈ Σ")
+
+    if dfa.is_language_empty():
+        print("  ⚠  Language            : EMPTY — no string is accepted by this DFA.")
+    else:
+        print("     Language            : non-empty (at least one string is accepted).")
+
+    print(separator)
+
+
 def run_simulation_loop(runner, dfa):
-    print("─" * 45)
     print("  DFA built successfully!")
-    print("─" * 45)
+    print_analysis(dfa)
     print("  Enter input strings to test. Type 'exit' to quit.")
 
     while True:
         try:
-            user_input = input("\n  Input string: ").strip()
+            user_input = input("  Input string: ").strip()
         except (EOFError, KeyboardInterrupt):
             print("\n  Goodbye!")
             break
@@ -63,13 +100,10 @@ def run_simulation_loop(runner, dfa):
 def main():
     print(BANNER)
     builder = DFABuilder()
-    runner  = DFARunner()
-
+    runner = DFARunner()
 
     while True:
         raw_input = collect_dfa_input()
-
-
 
         if not raw_input.strip():
             print("  No input provided. Please try again.\n")
@@ -78,7 +112,7 @@ def main():
         try:
             dfa = builder.build(raw_input)
         except ParseError as e:
-            print(f"\nParse error: {e}")
+            print(f"\n  Parse error: {e}")
             print("  Please check the format and try again.\n")
             continue
 
