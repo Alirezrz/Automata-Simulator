@@ -44,13 +44,10 @@ class DFA:
 
         self._complete_with_dead()
 
-        # Analysis results (populated lazily)
-        self._unreachable: set[str] | None = None
-        self._dead_states: set[str] | None = None
+        self._unreachable: set[str] 
+        self._dead_states: set[str] 
 
-    # ------------------------------------------------------------------
-    # Completion
-    # ------------------------------------------------------------------
+
 
     def _complete_with_dead(self):
 

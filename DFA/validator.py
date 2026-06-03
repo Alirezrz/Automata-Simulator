@@ -3,7 +3,6 @@ from dataclasses import dataclass
 class ValidationError:
     rule: str
     message: str
-
     def __str__(self):
         return f"[{self.rule}] {self.message}"
 
@@ -31,12 +30,11 @@ class DFAValidator:
         errors: list[ValidationError] = []
 
         self._check_start_state(start_state, states, errors)
-
         self._check_final_states(final_states, states, errors)
-
         self._check_transitions(transitions, states, alphabet, errors)
 
         is_valid = len(errors) == 0
+        
         return is_valid, errors
 
 

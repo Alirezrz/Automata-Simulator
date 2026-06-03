@@ -12,7 +12,8 @@ BANNER = """
 
 INPUT_GUIDE = """
 Enter your DFA definition below.
-Format:
+Include test strings at the end. Format:
+
   States: q0 q1 q2
   Alphabet: a b
   Start state: q0
@@ -22,12 +23,16 @@ Format:
   q1 b q2
   q2 a q2
   q2 b q2
+  Number of test strings: 3
+  ab
+  aba
+  bbb
 
 When finished, press Enter on a blank line.
 """
 
 
-def collect_dfa_input():
+def collect_input():
     print(INPUT_GUIDE)
     lines = []
     while True:
@@ -43,31 +48,31 @@ def collect_dfa_input():
 
 def print_analysis(dfa):
     separator = "─" * 50
-
     print(separator)
     print("  DFA Analysis")
     print(separator)
 
     unreachable = dfa.get_unreachable_states()
+    
     unreachable_display = unreachable - {DEAD}
     if unreachable_display:
         states_str = ", ".join(sorted(unreachable_display))
-        print(f"   ⚠ Unreachable states  : {{{states_str}}}")
-        print(     "     (These states can never be reached from the start state.)")
+        print(f"  ⚠  Unreachable states  : {{{states_str}}}")
+        print(    "     (These states can never be reached from the start state.)")
     else:
         print("     Unreachable states  : none")
 
     dead_states = dfa.get_dead_states()
-    dead_display = dead_states - {DEAD} 
+    dead_display = dead_states - {DEAD}
     if dead_display:
         states_str = ", ".join(sorted(dead_display))
         print(f"  ⚠  Dead states         : {{{states_str}}}")
-        print(     "     (From these states no accepting state can be reached.)")
+        print(    "     (From these states no accepting state can be reached.)")
     else:
         print("     Dead states         : none")
 
     if dfa.has_dead_state():
-        print(f"   DEAD state added    : undefined transitions were redirected to '{DEAD}'.")
+        print(f"     DEAD state added   : undefined transitions redirected to '{DEAD}'.")
         print(f"     δ(DEAD, x) = DEAD  for all x ∈ Σ")
 
     if dfa.is_language_empty():
@@ -78,23 +83,11 @@ def print_analysis(dfa):
     print(separator)
 
 
-def run_simulation_loop(runner, dfa):
-    print("  DFA built successfully!")
-    print_analysis(dfa)
-    print("  Enter input strings to test. Type 'exit' to quit.")
-
-    while True:
-        try:
-            user_input = input("  Input string: ").strip()
-        except (EOFError, KeyboardInterrupt):
-            print("\n  Goodbye!")
-            break
-
-        if user_input.lower() == "exit":
-            print("\n  Goodbye!")
-            break
-
-        runner.run(dfa, user_input)
+def run_simulations(runner, dfa, test_strings):
+    print("\n  Running simulations...")
+    print("─" * 50)
+    for s in test_strings:
+        runner.run(dfa, s)
 
 
 def main():
@@ -103,14 +96,14 @@ def main():
     runner = DFARunner()
 
     while True:
-        raw_input = collect_dfa_input()
+        raw_input = collect_input()
 
         if not raw_input.strip():
             print("  No input provided. Please try again.\n")
             continue
 
         try:
-            dfa = builder.build(raw_input)
+            dfa, test_strings = builder.build(raw_input)
         except ParseError as e:
             print(f"\n  Parse error: {e}")
             print("  Please check the format and try again.\n")
@@ -122,7 +115,9 @@ def main():
                 break
             continue
 
-        run_simulation_loop(runner, dfa)
+        print("\n  DFA built successfully!")
+        print_analysis(dfa)
+        run_simulations(runner, dfa, test_strings)
         break
 
 
