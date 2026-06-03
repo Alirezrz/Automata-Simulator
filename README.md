@@ -3,7 +3,7 @@
 A clean, educational **Deterministic Finite Automaton (DFA) simulator** written in Python.  
 Define any DFA, run test strings through it, and get a full step-by-step execution trace — straight in your terminal.
 
-> 🎨 **Want visualizations?** Check out the [`visualization`](../../tree/visualized) branch — it renders the DFA as a diagram and exports animated GIFs of each simulation, with no system-level dependencies required.
+> 🎨 **Want visualizations?** Check out the [`visualization`]([../../tree/visualized](https://github.com/Alirezrz/Automata-Simulator/tree/visualization)) branch — it renders the DFA as a diagram and exports animated GIFs of each simulation, with no system-level dependencies required.
 
 ---
 
