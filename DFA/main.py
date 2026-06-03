@@ -1,7 +1,54 @@
+import sys
+import subprocess
+
+def _ensure_dependencies():
+    REQUIRED = {
+        "matplotlib": "matplotlib",
+        "networkx":   "networkx",
+        "PIL":        "pillow",    
+    }
+
+    missing = []
+    for import_name, pip_name in REQUIRED.items():
+        try:
+            __import__(import_name)
+        except ImportError:
+            missing.append((import_name, pip_name))
+
+    if not missing:
+        return
+
+    print("┌─────────────────────────────────────────────────┐")
+    print("│  Missing dependencies detected — installing...  │")
+    print("└─────────────────────────────────────────────────┘")
+    for import_name, pip_name in missing:
+        print(f"  • {pip_name} (import name: {import_name})")
+    print()
+
+    for import_name, pip_name in missing:
+        print(f"  Installing {pip_name}...", end=" ", flush=True)
+        result = subprocess.run(
+            [sys.executable, "-m", "pip", "install", pip_name],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode == 0:
+            print("done ✓")
+        else:
+            print("FAILED ✗")
+            print(f"\n  Could not install '{pip_name}' automatically.")
+            print(f"  Please run manually:  pip install {pip_name}")
+            print(f"\n  pip error output:\n{result.stderr.strip()}")
+            sys.exit(1)
+
+    print("\n  All dependencies installed successfully.\n")
+
+_ensure_dependencies()
+
 from builder import DFABuilder, ParseError
 from runner import DFARunner
 from dfa import DEAD
-
+from visualizer import DFAVisualizer
 
 BANNER = """
 ╔══════════════════════════════════════╗
@@ -53,7 +100,6 @@ def print_analysis(dfa):
     print(separator)
 
     unreachable = dfa.get_unreachable_states()
-    
     unreachable_display = unreachable - {DEAD}
     if unreachable_display:
         states_str = ", ".join(sorted(unreachable_display))
@@ -92,8 +138,9 @@ def run_simulations(runner, dfa, test_strings):
 
 def main():
     print(BANNER)
-    builder = DFABuilder()
-    runner = DFARunner()
+    builder   = DFABuilder()
+    runner    = DFARunner()
+    visualizer = DFAVisualizer()
 
     while True:
         raw_input = collect_input()
@@ -117,6 +164,16 @@ def main():
 
         print("\n  DFA built successfully!")
         print_analysis(dfa)
+
+        try:
+            import matplotlib.pyplot as plt
+            fig, _ = visualizer.generate_graph(dfa)
+            fig.savefig("dfa_visualizations/base_structure.png", dpi=120, bbox_inches="tight")
+            plt.close(fig)
+            print("  Base DFA structural graph saved to dfa_visualizations/base_structure.png")
+        except Exception as e:
+            print(f"  ⚠  Could not generate base visual graph layout: {e}")
+
         run_simulations(runner, dfa, test_strings)
         break
 
