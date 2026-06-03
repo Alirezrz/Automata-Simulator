@@ -205,6 +205,4 @@ Any violations are reported clearly with the rule that was broken and what was f
 
 ---
 
-## License
 
-MIT — do whatever you want with it.
