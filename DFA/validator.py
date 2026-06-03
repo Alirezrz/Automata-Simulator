@@ -70,7 +70,7 @@ class DFAValidator:
         transitions: list[tuple[str, str, str]],
         states: set[str],
         alphabet: set[str],
-        errors: list[ValidationError],
+         errors: list[ValidationError],
     ):
         seen: set[tuple[str, str]] = set()
         for from_state, symbol, to_state in transitions:
