@@ -22,7 +22,7 @@ Format:
   q2 a q2
   q2 b q2
 
-enter a blank line.
+ and when you are finished enter a blank line.\n\n
 """
 
 
