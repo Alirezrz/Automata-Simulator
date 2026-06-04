@@ -6,7 +6,7 @@ from dfa import DEAD
 BANNER = """
 ╔══════════════════════════════════════╗
 ║         DFA Simulator                ║
-║  Deterministic Finite Automaton      ║
+║                                      ║
 ╚══════════════════════════════════════╝
 """
 

@@ -44,8 +44,8 @@ class DFA:
 
         self._complete_with_dead()
 
-        self._unreachable: set[str] 
-        self._dead_states: set[str] 
+        self._unreachable: set[str] | None= None
+        self._dead_states: set[str] |None=None
 
 
 

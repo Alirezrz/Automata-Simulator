@@ -1,5 +1,8 @@
 from dfa import DFA, DEAD
 
+GREEN = "\033[92m"
+RED   = "\033[91m"
+RESET = "\033[0m"   
 
 class DFARunner:
 
@@ -14,7 +17,7 @@ class DFARunner:
 
             if symbol not in dfa.alphabet:
                 print(f"Read '{symbol}' -> symbol not in alphabet. String is invalid.")
-                print("Result: Rejected")
+                print(f"{RED}Result: Rejected{RESET}")
                 print()
                 return False
 
@@ -25,12 +28,12 @@ class DFARunner:
             if current_state == DEAD:
                 print("Entered DEAD state.")
                 print("Execution halted early.")
-                print("Result: Rejected")
+                print(f"{RED}Result: Rejected{RESET}")
                 print()
                 return False
 
         accepted = dfa.is_accepting(current_state)
         print(f"Halted at state: {current_state}")
-        print(f"Result: {'Accepted' if accepted else 'Rejected'}")
+        print(f"{GREEN}Result: Accepted{RESET}" if accepted else f"{RED}Result: Rejected{RESET}")
         print()
         return accepted
