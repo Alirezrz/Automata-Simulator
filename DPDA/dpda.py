@@ -48,17 +48,17 @@ class DPDATransition:
 
 class DPDA:
     """
-    M = (Q, Σ, Γ, δ, q0, Z0, F)
-    Attributes:
-        states (Q)
-        input_alphabet (Σ)
-        stack_alphabet(Γ)
-        start_state (q0)
-        initial_stack(Z0)
-        final_states (F)
-        acceptance_mode:'final' or 'empty'
-        transitions: list of DPDATransition
-        delta : dict(from_state, input, stack_top) -> DPDATransition
+M = (Q, Σ, Γ, δ, q0, Z0, F)
+Attributes:
+    states (Q)
+    input_alphabet (Σ)
+    stack_alphabet(Γ)
+    start_state (q0)
+    initial_stack(Z0)
+    final_states (F)
+    acceptance_mode:'final' or 'empty'
+    transitions: list of DPDATransition
+    delta : dict(from_state, input, stack_top) -> DPDATransition
     """
 
     def __init__(self, dpda_dict, transitions):
@@ -109,15 +109,20 @@ class DPDA:
     def is_accepting_final(self, state):
         return state in self.final_states
 
+
     def is_accepting_empty(self, stack):
-        return len(stack) == 0
+        return len(stack) ==0
+
+
 
     def fresh_stack(self):
         return Stack(self.initial_stack)
 
+
+
+
     def stack_str(self, stack):
         return ''.join(stack) if stack else '(empty)'
-
     def __repr__(self):
         return (
             f"DPDA(\n"
