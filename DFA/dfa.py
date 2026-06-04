@@ -137,7 +137,7 @@ class DFA:
 
 
 
-    def is_language_empty(self) -> bool:
+    def is_language_empty(self):
         reachable = self.states - self.get_unreachable_states()
         return len(reachable & self.final_states) == 0
 
