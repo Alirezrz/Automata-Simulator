@@ -18,10 +18,6 @@ class DFABuilder:
         q1 b q2
         q2 a q2
         q2 b q2
-        Number of test strings: 3
-        ab
-        aba
-        bbb
     """
 
     def __init__(self):
@@ -29,7 +25,7 @@ class DFABuilder:
 
     def build(self, raw_input):
 
-        states, alphabet, start_state, final_states, raw_transitions, test_strings = self._parse(raw_input)
+        states, alphabet, start_state, final_states, raw_transitions = self._parse(raw_input)
 
         is_valid, errors = self._validator.validate(
             states, alphabet, start_state, final_states, raw_transitions
@@ -37,15 +33,14 @@ class DFABuilder:
 
         if not is_valid:
             self._report_errors(errors)
-            return None, []
+            return None
 
         transitions = [
             DFATransition(from_state, symbol, to_state)
             for from_state, symbol, to_state in raw_transitions
         ]
 
-        return DFA(states, alphabet, start_state, final_states, transitions), test_strings
-
+        return DFA(states, alphabet, start_state, final_states, transitions)
 
 
     def _parse(self, raw_input):
@@ -57,10 +52,8 @@ class DFABuilder:
         final_states  = self._parse_field(lines, "Final states:")
         n_transitions = self._parse_count(lines, "Number of transitions:")
         transitions   = self._parse_transitions(lines, n_transitions)
-        n_test        = self._parse_count(lines, "Number of test strings:")
-        test_strings  = self._parse_test_strings(lines, n_transitions, n_test)
 
-        return set(states), set(alphabet), start_state, set(final_states), transitions, test_strings
+        return set(states), set(alphabet), start_state, set(final_states), transitions
 
     def _parse_field(self, lines, prefix):
         for line in lines:
@@ -87,7 +80,6 @@ class DFABuilder:
         section_prefixes = (
             "states:", "alphabet:", "start state:",
             "final states:", "number of transitions:",
-            "number of test strings:",
         )
         transition_lines = [
             line for line in lines
@@ -110,31 +102,6 @@ class DFABuilder:
             transitions.append((parts[0], parts[1], parts[2]))
 
         return transitions
-
-    def _parse_test_strings(self, lines, n_transitions, n_test):
-        """
-        Test strings come after all section headers and transition lines.
-        We skip all header lines and the first n_transitions data lines,
-        then take the next n_test lines as test strings.
-        """
-        section_prefixes = (
-            "states:", "alphabet:", "start state:",
-            "final states:", "number of transitions:",
-            "number of test strings:",
-        )
-        data_lines = [
-            line for line in lines
-            if not any(line.lower().startswith(p) for p in section_prefixes)
-        ]
-
-        test_lines = data_lines[n_transitions:]
-
-        if len(test_lines) < n_test:
-            raise ParseError(
-                f"Expected {n_test} test string(s), but only found {len(test_lines)}."
-            )
-
-        return test_lines[:n_test]
 
 
     def _report_errors(self, errors):

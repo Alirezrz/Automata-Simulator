@@ -12,7 +12,7 @@ BANNER = """
 
 INPUT_GUIDE = """
 Enter your DFA definition below.
-Include test strings at the end. Format:
+Format:
 
   States: q0 q1 q2
   Alphabet: a b
@@ -23,10 +23,6 @@ Include test strings at the end. Format:
   q1 b q2
   q2 a q2
   q2 b q2
-  Number of test strings: 3
-  ab
-  aba
-  bbb
 
 When finished, press Enter on a blank line.
 """
@@ -53,7 +49,6 @@ def print_analysis(dfa):
     print(separator)
 
     unreachable = dfa.get_unreachable_states()
-    
     unreachable_display = unreachable - {DEAD}
     if unreachable_display:
         states_str = ", ".join(sorted(unreachable_display))
@@ -83,11 +78,19 @@ def print_analysis(dfa):
     print(separator)
 
 
-def run_simulations(runner, dfa, test_strings):
-    print("\n  Running simulations...")
+def run_simulation_loop(runner, dfa):
+    print("\n  DFA is ready. Enter strings to test (type 'exit' to quit, press Enter for empty string).")
     print("─" * 50)
-    for s in test_strings:
-        runner.run(dfa, s)
+    while True:
+        try:
+            user_input = input("\n  String to test or exit to stop: ")
+        except EOFError:
+            break
+
+        if user_input.strip().lower() == "exit":
+            break
+
+        runner.run(dfa, user_input)
 
 
 def main():
@@ -103,7 +106,7 @@ def main():
             continue
 
         try:
-            dfa, test_strings = builder.build(raw_input)
+            dfa = builder.build(raw_input)
         except ParseError as e:
             print(f"\n  Parse error: {e}")
             print("  Please check the format and try again.\n")
@@ -117,7 +120,7 @@ def main():
 
         print("\n  DFA built successfully!")
         print_analysis(dfa)
-        run_simulations(runner, dfa, test_strings)
+        run_simulation_loop(runner, dfa)
         break
 
 
