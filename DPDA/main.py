@@ -11,7 +11,7 @@ BANNER = """
 """
 
 INPUT_GUIDE = """
-Enter your DPDA definition below.
+Enter your DPDA definition 
 Format:
 
   States: q0 q1 q2
@@ -28,34 +28,63 @@ Format:
   q1 b A q2 eps
   q2 b A q2 eps
 
-When finished, press Enter on a blank line.
 """
 
+
 def collect_input():
-    print(INPUT_GUIDE)
     lines = []
-    
+
+    prompts = [
+        ("States","  States: "),
+        ("Input alphabet", "  Input alphabet: "),
+        ("Stack alphabet", "  Stack alphabet: "),
+        ("Start state", "  Start state: "),
+        ("Initial stack symbol", "  Initial stack symbol: "),
+        ("Final states",   "  Final states: "),
+        ("Acceptance mode",     "  Acceptance mode (final / empty): "),
+    ]
+
+    for prefix, prompt in prompts:
+        while True:
+            try:
+                value = input(prompt).strip()
+            except EOFError:
+                return ""
+            if value:
+                lines.append(f"{prefix}: {value}")
+                break
+            print("    This field cannot be empty. Please try again.")
+
     while True:
-    
         try:
-    
-            line = input()
-    
-    
+            n_str = input("  Number of transitions: ").strip()
         except EOFError:
+            return ""
+        if n_str.isdigit():
+            n = int(n_str)
+            lines.append(f"Number of transitions: {n_str}")
             break
-        
-        
-        if line.strip() == "":
-            break
-        lines.append(line)
-        
+        print("    Please enter a valid non-negative integer.")
+
+    print("  Enter each transition as:  from_state  input  stack_top  to_state  push")
+    print("  (use 'eps' for lambda input or empty push)\n")
+
+    for i in range(n):
+        while True:
+            try:
+                t = input(f"  Transition {i + 1}: ").strip()
+            except EOFError:
+                return ""
+            if len(t.split()) == 5:
+                lines.append(t)
+                break
+            print("     Expected exactly 5 fields. Try again.")
+
     return "\n".join(lines)
 
 
 def build_dpda(raw_input):
-    
-    parser    = DPDAParser()
+    parser= DPDAParser()
     validator = DPDAValidator()
     dpda_dict = parser.parse(raw_input)
     is_valid, errors = validator.validate(dpda_dict)
@@ -64,25 +93,22 @@ def build_dpda(raw_input):
         validator._report_errors(errors)
         return None
 
-
-
-
     transitions = [
         DPDATransition(
             from_state = t['from_state'],
             input= t['input'],
-            stack_top = t['stack_top'],
-            to_state= t['to_state'],
-            push = t['push'],
+            stack_top  = t['stack_top'],
+            to_state = t['to_state'],
+            push  = t['push'],
         )
         for t in dpda_dict['transitions']
     ]
     return DPDA(dpda_dict, transitions)
 
-
 def run_simulation_loop(simulator, dpda):
-    print("\n  DPDA is ready. Enter strings to test (type 'exit' to quit, press Enter for empty string).")
+    print("\n  DPDA is ready. Enter strings to test (type 'exit' to quit).")
     print("─" * 50)
+
     while True:
         try:
             user_input = input("\n  String to test or exit to stop: ")
@@ -95,9 +121,9 @@ def run_simulation_loop(simulator, dpda):
 
 
 def main():
-    
     print(BANNER)
-    
+    print(INPUT_GUIDE)
+
     simulator = DPDASimulator()
 
     while True:
@@ -105,6 +131,7 @@ def main():
         if not raw_input.strip():
             print("  No input provided. Please try again.\n")
             continue
+
         try:
             dpda = build_dpda(raw_input)
         except ParseError as e:
@@ -117,10 +144,12 @@ def main():
             if retry not in ("yes", "y"):
                 break
             continue
+
         print("\n  DPDA built successfully!")
         print(dpda)
         run_simulation_loop(simulator, dpda)
         break
+
 
 if __name__ == "__main__":
     main()
