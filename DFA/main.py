@@ -29,17 +29,52 @@ When finished, press Enter on a blank line.
 
 
 def collect_input():
-    print(INPUT_GUIDE)
+    print("\n  Enter your DFA definition step by step.\n")
     lines = []
+
+    prompts = [
+        ("States", "  States: "),
+        ("Alphabet","  Alphabet: "),
+        ("Start state","  Start state: "),
+        ("Final states", "  Final states: "),
+    ]
+
+    for prefix, prompt in prompts:
+        while True:
+            try:
+                value = input(prompt).strip()
+            except EOFError:
+                return ""
+            if value:
+                lines.append(f"{prefix}: {value}")
+                break
+            print("    This field cannot be empty. Please try again.")
+
     while True:
         try:
-            line = input()
+            n_str = input("  Number of transitions: ").strip()
         except EOFError:
+            return ""
+        if n_str.isdigit():
+            lines.append(f"Number of transitions: {n_str}")
+            n = int(n_str)
             break
-        if line.strip() == "":
-            break
-        lines.append(line)
+        print("    Please enter a valid non-negative integer.")
+
+    print("  Enter each transition as:  from_state  symbol  to_state\n")
+
+    for i in range(n):
+        while True:
+            try:
+                t = input(f"  Transition {i + 1}: ").strip()
+            except EOFError:
+                return ""
+            if len(t.split()) == 3:
+                lines.append(t)
+                break
+            print("     Expected exactly 3 fields. Try again.")
     return "\n".join(lines)
+
 
 
 def print_analysis(dfa):
@@ -95,6 +130,7 @@ def run_simulation_loop(runner, dfa):
 
 def main():
     print(BANNER)
+    print(INPUT_GUIDE)
     builder = DFABuilder()
     runner = DFARunner()
 
