@@ -41,7 +41,6 @@ class DPDASimulator:
             stack  = dpda.apply_transition(stack, transition)
             next_state= transition.to_state
 
-            # only advane input if this was NOT a lambda transition
             if transition.input != 'eps':
                 symbol_read = current_input
                 index += 1
